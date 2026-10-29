@@ -63,4 +63,26 @@
     }
 
 
-
+    if (empty($errores)) {
+        try {
+            $sql = 'INSERT INTO users (user, email, password) VALUES (:user, :email, :password)';
+            $stmt = $conexion->prepare($sql);
+            $stmt->execute([
+                'user' => $user,
+                'email' => $email,
+                'password' => $password
+            ]);
+        $mensaje = 'Usuario registrado correctamente.';
+        $user = '';
+        $email = '';
+        $password = '';
+        } catch (PDOException $e) {
+            if ($e->getCode() === '23000') {
+                $errores[] = 'Ese usuario ya está registrado.';
+            } else {
+                error_log($e->getMessage());
+                $errores[] = 'Ocurrió un error al guardar los datos.';
+            }
+        }
+    }
+?>

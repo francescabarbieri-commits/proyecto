@@ -45,7 +45,6 @@
         </form>
 </div>
 
-
 <?php
     $errores = [];
     $user = '';
@@ -62,6 +61,9 @@
     }
     if ($password === '') {
         $errores[] = 'La contraseña es obligatoria.';
+    }
+    if ($password === '' || !preg_match('/^[0-9]{7,8}$/', $password)) {
+        $errores[] = 'La contraseña debe tener mínimo 8 números.';
     }
     if ($password !== $_POST['password_confirm'] ?? '') {
         $errores[] = 'Las contraseñas no coinciden.';
