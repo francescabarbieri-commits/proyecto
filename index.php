@@ -29,9 +29,38 @@
                 <div class="control-group">
                     <label for="password">Contraseña*</label>
                     <input type="password" id="password" name="pass" placeholder= "Contraseña" required>
+                </div>
             </fieldset>
 
             <div class="botones-container">
                 <button type="submit" class="btn-guardar">Iniciar Sesión</button>
-                <button type="reset" class="btn-reset">Borrar</button>
+                <button type="submit2" class="btn-guardar2">Crear Cuenta <href= login.php></button>
             </div>
+
+        </form>
+</div>
+
+
+<?php
+    $errores = [];
+    $user = '';
+    $email = '';
+    $password = '';
+
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $user = trim($_POST['user'] ?? '');
+        $email = trim($_POST['email'] ?? '');
+        $password = trim($_POST['password'] ?? '');
+    }
+    if ($user === '') {
+        $errores[] = 'El nombre de usuario es obligatorio.';
+    }
+    if ($password === '') {
+        $errores[] = 'La contraseña es obligatoria.';
+    }
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $errores[] = 'Ingresá un correo válido.';
+    }
+
+
+
