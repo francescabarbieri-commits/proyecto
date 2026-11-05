@@ -49,15 +49,21 @@
     $errores = [];
     $user = '';
     $email = '';
+    $DNI = '';
     $password = '';
 
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $user = trim($_POST['user'] ?? '');
         $email = trim($_POST['email'] ?? '');
+        $DNI = trim($_POST['DNI'] ?? '');
+        $ROL=trim($_POST['ROL'] ?? '');
         $password = trim($_POST['password'] ?? '');
     }
     if ($user === '') {
         $errores[] = 'El nombre de usuario es obligatorio.';
+    }
+    if ($DNI === '' || !preg_match('/^[0-9]{7,8}$/', $DNI)) {
+        $errores[] = 'El DNI debe tener 7 u 8 números.';
     }
     if ($password === '') {
         $errores[] = 'La contraseña es obligatoria.';
@@ -71,3 +77,46 @@
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $errores[] = 'Ingresá un correo válido.';
     }
+
+
+
+$passwordHash = password_hash(
+$password,
+PASSWORD_DEFAULT
+);
+
+$sql = 'INSERT INTO teatro
+(user, email, password_hash, rol)
+VALUES (:user, :email, :password_hash, :rol)';
+$stmt = $conexion->prepare($sql);
+$stmt->execute([
+'user' => $user,
+'email' => $email,
+'password_hash' => $passwordHash,
+'rol' => 'usuario'
+]);
+
+$sql = 'SELECT id, user, email, password_hash, rol
+FROM usuarios
+WHERE email = :email
+AND archivado_en IS NULL
+LIMIT 1';
+$stmt = $conexion->prepare($sql);
+$stmt->execute(['email' => $email]);
+$usuario = $stmt->fetch();
+
+if ($user !== false &&
+password_verify($password, $user['password_hash']))
+{
+session_start();
+session_regenerate_id(true);
+$_SESSION['user_id'] = $user['id'];
+$_SESSION['user_rol'] = $user['rol'];
+// Redirigir según rol
+if ($usuario['rol'] === 'admin') {
+header('Location: admin_usuarios.php');
+} else {
+header('Location: panel.php');
+}
+exit;
+}
