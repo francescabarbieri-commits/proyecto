@@ -38,6 +38,21 @@ CREATE TABLE `users` (
   `archivado_en` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+
+CREATE TABLE reservas (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(100) NOT NULL,
+    email VARCHAR(150) NOT NULL,
+    obra VARCHAR(150) NOT NULL,
+    fecha DATE NOT NULL,
+    horario VARCHAR(5) NOT NULL,
+    cantidad TINYINT NOT NULL,
+    ubicacion VARCHAR(50) NOT NULL,
+    accesibilidad TINYINT(1) NOT NULL DEFAULT 0,
+    comentarios TEXT NULL,
+    creada_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 --
 -- Indexes for dumped tables
 --
