@@ -79,3 +79,25 @@ COMMIT;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+
+
+UPDATE usuarios
+SET nombre = :nombre,
+apellido = :apellido,
+dni = :dni,
+email = :email
+WHERE id = :id
+AND archivado_en IS NULL;
+
+
+
+UPDATE usuarios
+SET archivado_en = CURRENT_TIMESTAMP
+WHERE id = :id
+AND archivado_en IS NULL;
+
+
+UPDATE usuarios
+SET archivado_en = NULL
+WHERE id = :id
+AND archivado_en IS NOT NULL;

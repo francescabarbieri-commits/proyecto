@@ -1,4 +1,6 @@
 <?php
+session_start();
+
 $obras       = ['Romeo y Julieta', 'La casa de Bernarda Alba', 'Hamlet'];
 $horarios    = ['18:00', '20:30'];
 $ubicaciones = ['Platea', 'Palco', 'Pullman', 'Galería'];
@@ -16,9 +18,22 @@ $ubicacion     = '';
 $accesibilidad = false;
 $comentarios   = '';
 
+$reserva = $_SESSION['reserva_ok'] ?? null;
+unset($_SESSION['reserva_ok']);
+
 function e(string $texto): string
 {
     return htmlspecialchars($texto, ENT_QUOTES, 'UTF-8');
+}
+
+function fechaLarga(string $ymd): string
+{
+    $dias  = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
+    $meses = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio',
+              'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+    $f = new DateTime($ymd);
+    return ucfirst($dias[(int)$f->format('w')]) . ' ' . $f->format('j')
+        . ' de ' . $meses[(int)$f->format('n') - 1] . ' de ' . $f->format('Y');
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -80,10 +95,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'comentarios'   => $comentarios,
             ]);
 
-            $mensaje = 'Reserva confirmada. Te enviaremos los detalles a tu correo.';
-
-            $nombre = $email = $obra = $fecha = $horario = $cantidad = $ubicacion = $comentarios = '';
-            $accesibilidad = false;
+            $_SESSION['reserva_ok'] = [
+                'id'            => $conexion->lastInsertId(),
+                'nombre'        => $nombre,
+                'email'         => $email,
+                'obra'          => $obra,
+                'fecha'         => $fecha,
+                'horario'       => $horario,
+                'cantidad'      => (int)$cantidad,
+                'ubicacion'     => $ubicacion,
+                'accesibilidad' => $accesibilidad,
+            ];
+            header('Location: form.php');
+            exit;
         } catch (Throwable $ex) {
             error_log($ex->getMessage());
             $errores[] = 'No pudimos guardar tu reserva. Intentá de nuevo en unos minutos.';
@@ -112,6 +136,48 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </nav>
 
     <div>
+<?php if ($reserva): ?>
+        <h1>¡Reserva confirmada!</h1>
+        <p class="subtitulo">Te enviaremos los detalles a <?= e($reserva['email']) ?></p>
+
+        <article class="entrada">
+            <div class="entrada-cuerpo">
+                <p class="entrada-etiqueta">Entrada</p>
+                <h2 class="entrada-obra"><?= e($reserva['obra']) ?></h2>
+
+                <dl class="entrada-datos">
+                    <div class="dato-ancho">
+                        <dt>Fecha</dt>
+                        <dd><?= e(fechaLarga($reserva['fecha'])) ?></dd>
+                    </div>
+                    <div>
+                        <dt>Horario</dt>
+                        <dd><?= e($reserva['horario']) ?> hs</dd>
+                    </div>
+                    <div>
+                        <dt>Ubicación</dt>
+                        <dd><?= e($reserva['ubicacion']) ?></dd>
+                    </div>
+                </dl>
+
+                <p class="entrada-titular">A nombre de <?= e($reserva['nombre']) ?></p>
+            </div>
+
+            <div class="entrada-talon">
+                <p class="talon-etiqueta">Admite</p>
+                <p class="talon-cantidad"><?= (int)$reserva['cantidad'] ?></p>
+                <p class="talon-codigo">N.° <?= str_pad((string)$reserva['id'], 5, '0', STR_PAD_LEFT) ?></p>
+                <?php if ($reserva['accesibilidad']): ?>
+                    <p class="talon-nota">Lugar accesible</p>
+                <?php endif; ?>
+            </div>
+        </article>
+
+        <div class="botones-container">
+            <a href="form.php" class="btn-guardar">Reservar otra función</a>
+            <a href="index.php" class="btn-guardar2">Ir al inicio</a>
+        </div>
+<?php else: ?>
         <h1>Reservar entradas</h1>
         <p class="subtitulo">Completá los datos para asegurar tu lugar en la sala</p>
 
@@ -128,7 +194,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <?php endforeach; ?>
                 </ul>
             </div>
-        <?php endif; ?>
+        <?php endif; 
+        
+?>
 
         <form action="form.php" method="POST" id="reservaForm">
 
@@ -138,13 +206,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <div class="control-group">
                     <label for="nombre">Nombre y apellido*</label>
                     <input type="text" id="nombre" name="nombre" placeholder="Nombre y apellido"
-                           value="<?= e($nombre) ?>" required>
+                        value="<?= e($nombre) ?>" required>
                 </div>
 
                 <div class="control-group">
                     <label for="email">Correo electrónico*</label>
                     <input type="email" id="email" name="email" placeholder="nombre@correo.com"
-                           value="<?= e($email) ?>" required>
+                        value="<?= e($email) ?>" required>
                 </div>
             </fieldset>
 
@@ -164,7 +232,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <div class="control-group">
                     <label for="fecha">Fecha*</label>
                     <input type="date" id="fecha" name="fecha" min="<?= date('Y-m-d') ?>"
-                           value="<?= e($fecha) ?>" required>
+                        value="<?= e($fecha) ?>" required>
                 </div>
 
                 <div class="control-group">
@@ -173,7 +241,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <?php foreach ($horarios as $i => $h): ?>
                             <label class="opcion-inline" for="horario<?= $i ?>">
                                 <input type="radio" id="horario<?= $i ?>" name="horario"
-                                       value="<?= e($h) ?>" <?= $horario === $h ? 'checked' : '' ?> required>
+                                    value="<?= e($h) ?>" <?= $horario === $h ? 'checked' : '' ?> required>
                                 <?= e($h) ?> hs
                             </label>
                         <?php endforeach; ?>
@@ -207,7 +275,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <div class="control-group">
                     <label class="opcion-inline" for="accesibilidad">
                         <input type="checkbox" id="accesibilidad" name="accesibilidad"
-                               <?= $accesibilidad ? 'checked' : '' ?>>
+                            <?= $accesibilidad ? 'checked' : '' ?>>
                         Necesito un lugar con accesibilidad
                     </label>
                 </div>
@@ -215,7 +283,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <div class="control-group">
                     <label for="comentarios">Comentarios</label>
                     <textarea id="comentarios" name="comentarios" rows="3"
-                              placeholder="Algo que debamos saber"><?= e($comentarios) ?></textarea>
+                            placeholder="Algo que debamos saber"><?= e($comentarios) ?></textarea>
                 </div>
             </fieldset>
 
@@ -225,6 +293,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
 
         </form>
+<?php endif; ?>
     </div>
 
     <footer>

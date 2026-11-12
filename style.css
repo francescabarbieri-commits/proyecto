@@ -236,6 +236,7 @@ textarea,
 input[type="text"],
 input[type="email"],
 input[type="password"],
+input[type="search"],
 input[type="date"] {
     width: 100%;
     padding: 8px 12px;
@@ -259,6 +260,7 @@ textarea:focus,
 input[type="text"]:focus,
 input[type="email"]:focus,
 input[type="password"]:focus,
+input[type="search"]:focus,
 input[type="date"]:focus {
     border-color: var(--acento);
 }
@@ -339,7 +341,11 @@ form a:hover {
     background: transparent;
 }
 
+.btn-guardar,
 .btn-guardar2 {
+    display: flex;
+    align-items: center;
+    justify-content: center;
     text-align: center;
     text-decoration: none;
 }
@@ -450,4 +456,244 @@ footer {
 .mensaje-error ul {
     margin: 0.5rem 0 0 1.2rem;
     font-weight: 400;
+}
+
+.entrada {
+    position: relative;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    margin-bottom: 1.5rem;
+    background: var(--telon);
+    border: 1px solid var(--acento);
+    border-radius: 14px;
+    overflow: hidden;
+}
+
+.entrada-cuerpo {
+    padding: 1.5rem 1.75rem;
+}
+
+.entrada-etiqueta,
+.entrada-datos dt,
+.talon-etiqueta {
+    font-family: var(--fuente-menu);
+    font-size: 0.72rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--acento);
+}
+
+.entrada-etiqueta {
+    margin-bottom: 0.5rem;
+}
+
+.entrada-obra {
+    margin-bottom: 1.25rem;
+    font-family: var(--fuente-titulos);
+    font-size: 1.8rem;
+    line-height: 1.2;
+    color: var(--texto);
+}
+
+.entrada-datos {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.dato-ancho {
+    grid-column: 1 / -1;
+}
+
+.entrada-datos dd {
+    font-size: 1.05rem;
+    font-weight: 700;
+}
+
+.entrada-titular {
+    margin-top: 1.25rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--borde);
+    font-size: 0.9rem;
+    opacity: 0.8;
+}
+
+.entrada-talon {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-width: 140px;
+    padding: 1.5rem 1.25rem;
+    text-align: center;
+    background: var(--negro-escena);
+    border-left: 2px dashed var(--acento);
+}
+
+.entrada-talon::before,
+.entrada-talon::after {
+    content: '';
+    position: absolute;
+    left: -12px;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: var(--superficie);
+}
+
+.entrada-talon::before {
+    top: -11px;
+}
+
+.entrada-talon::after {
+    bottom: -11px;
+}
+
+.talon-cantidad {
+    font-family: var(--fuente-titulos);
+    font-size: 3rem;
+    font-weight: 700;
+    line-height: 1.1;
+    color: var(--acento);
+}
+
+.talon-codigo {
+    margin-top: 0.75rem;
+    font-family: var(--fuente-menu);
+    font-size: 0.85rem;
+    letter-spacing: 0.1em;
+}
+
+.talon-nota {
+    margin-top: 0.75rem;
+    font-size: 0.8rem;
+    opacity: 0.8;
+}
+
+@media (max-width: 600px) {
+    .entrada {
+        grid-template-columns: 1fr;
+    }
+
+    .entrada-obra {
+        font-size: 1.5rem;
+    }
+
+    .entrada-talon {
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: space-around;
+        gap: 0.5rem 1rem;
+        border-left: none;
+        border-top: 2px dashed var(--acento);
+    }
+
+    .entrada-talon::before,
+    .entrada-talon::after {
+        top: -12px;
+        bottom: auto;
+    }
+
+    .entrada-talon::before {
+        left: -11px;
+    }
+
+    .entrada-talon::after {
+        left: auto;
+        right: -11px;
+    }
+}
+
+body > div.tarjeta-ancha {
+    max-width: 1000px;
+}
+
+.busqueda {
+    flex-direction: row;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+}
+
+.busqueda .btn-guardar {
+    flex: none;
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+}
+
+.tabla-contenedor {
+    overflow-x: auto;
+}
+
+.tabla-usuarios {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+}
+
+.tabla-usuarios th {
+    padding: 10px 12px;
+    border-bottom: 2px solid var(--borde);
+    font-family: var(--fuente-menu);
+    font-size: 0.75rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    color: var(--acento);
+}
+
+.tabla-usuarios td {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--borde);
+}
+
+.tabla-usuarios tbody tr:hover {
+    background: var(--telon);
+}
+
+.acciones {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.form-inline {
+    display: inline-flex;
+    flex-direction: row;
+    gap: 0;
+}
+
+.btn-chico {
+    padding: 6px 12px;
+    border: 1px solid var(--acento);
+    border-radius: 8px;
+    background: transparent;
+    color: var(--acento);
+    font-family: var(--fuente-menu);
+    font-size: 0.75rem;
+    letter-spacing: 0.05em;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+}
+
+.btn-chico:hover {
+    background: var(--acento);
+    color: var(--negro-escena);
+}
+
+.btn-peligro {
+    border-color: var(--borde);
+    color: var(--texto);
+}
+
+.btn-peligro:hover {
+    background: var(--borde);
+    color: var(--texto);
+}
+
+.vacio {
+    padding: 1.5rem 0;
+    text-align: center;
+    opacity: 0.75;
 }

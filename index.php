@@ -1,18 +1,8 @@
 <?php
-session_start();
-
-function e(string $texto): string
-{
-    return htmlspecialchars($texto, ENT_QUOTES, 'UTF-8');
-}
-
-function destinoSegunRol(string $rol): string
-{
-    return $rol === 'admin' ? 'vistaadmin.php' : 'vistauser.php';
-}
+require_once __DIR__ . '/auth.php';
 
 if (isset($_SESSION['usuario_id'])) {
-    header('Location: ' . destinoSegunRol($_SESSION['usuario_rol'] ?? ''));
+    header('Location: '.destinoSegunRol($_SESSION['usuario_rol'] ?? ''));
     exit;
 }
 
@@ -40,18 +30,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             require_once __DIR__ . '/conexion.php';
 
             $stmt = $conexion->prepare(
-                'SELECT id, `user`, password_hash, rol FROM users WHERE email = :email LIMIT 1'
+                'SELECT id, `user`, password_hash, rol
+                FROM users
+                WHERE email = :email AND archivado_en IS NULL
+                LIMIT 1'
             );
             $stmt->execute(['email' => $email]);
             $usuario = $stmt->fetch();
 
             if ($usuario && password_verify($password, $usuario['password_hash'])) {
                 session_regenerate_id(true);
-                $_SESSION['usuario_id']     = $usuario['id'];
-                $_SESSION['usuario_rol']    = $usuario['rol'];
-                $_SESSION['usuario_nombre'] = $usuario['user'];
+                $_SESSION['usuario_id']   = (int)$usuario['id'];
+                $_SESSION['usuario_rol']  = $usuario['rol'];
+                $_SESSION['usuario_user'] = $usuario['user'];
 
-                header('Location: ' . destinoSegunRol($usuario['rol']));
+                header('Location: '.destinoSegunRol($usuario['rol']));
                 exit;
             }
 
@@ -94,11 +87,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <form action="index.php" method="POST" id="loginForm">
 
             <fieldset>
+                <legend>Tu cuenta</legend>
 
                 <div class="control-group">
                     <label for="email">Correo electrónico*</label>
                     <input type="email" id="email" name="email" placeholder="nombre@correo.com"
-                           value="<?= e($email) ?>" required>
+                        value="<?= e($email) ?>" required>
                 </div>
 
                 <div class="control-group">
